@@ -12,11 +12,17 @@ import (
 // served by this product. The product does not provide service to mainland
 // China cards; the set mirrors the CN entry of the MCC table used for upstream
 // proxy routing (460/461). It is keyed by MCC with a display name for logs and
+
 // user-facing messaging.
+//var BlockedMCCs = map[string]string{
+//	"460": "中国",
+//	"461": "中国",
+//}
+
+// 解除cn卡片自动切换飞行模式屏蔽 fork后修改内容
 var BlockedMCCs = map[string]string{
-	"460": "中国",
-	"461": "中国",
 }
+
 
 // CardMCCMNC splits an IMSI into its mobile country code and mobile network
 // code. The MCC is the leading three digits and the MNC the following two or
@@ -66,6 +72,9 @@ func IsPlaceholderIMSI(imsi string) bool {
 // MCC triggers a block (fail-open), so a transient IMSI read failure never
 // denies service to a legitimate card.
 func RegionBlockReason(imsi string) string {
+	
+	return "" // 直接放行所有地区与 MCC fork后修改内容
+	
 	mcc, _ := CardMCCMNC(imsi)
 	country, blocked := BlockedMCCs[mcc]
 	if !blocked {
