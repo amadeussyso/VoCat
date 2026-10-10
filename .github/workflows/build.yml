@@ -1,4 +1,4 @@
-name: Build Binary
+name: Build VoCat Binary
 
 on:
   push:
@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -21,7 +23,7 @@ jobs:
         run: |
           if [ -d "web" ]; then
             cd web
-            npm install || npm install --legacy-peer-deps
+            npm install --legacy-peer-deps || npm install
             npm run build
             cd ..
           fi
@@ -31,12 +33,12 @@ jobs:
         with:
           go-version: '1.22'
 
-      - name: Build VoCat Linux Binary
+      - name: Build VoCat Linux ARM64 Binary
         run: |
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o vocat-linux-amd64 ./cmd/vocat
+          CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o vocat-linux-arm64 ./cmd/vocat
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: vocat-linux-amd64
-          path: vocat-linux-amd64
+          name: vocat-linux-arm64
+          path: vocat-linux-arm64
