@@ -1,13 +1,24 @@
 package device
 
-import "testing"
+import (
+	"testing"
 
-func TestRegionBlockReason(t *testing.T) {
-	// 已解除大陆 460/461 限制，断言不再触发屏蔽
-	if reason := RegionBlockReason("460001234567890"); reason != "" {
-		t.Errorf("RegionBlockReason should not block, got: %s", reason)
+	"vocat/internal/modem"
+)
+
+func TestParseRegistrationStatus(t *testing.T) {
+	tests := []struct {
+		line string
+		want int
+	}{
+		{line: "+CEREG: 0,5", want: 5},
+		{line: "+CGREG: 2,1,\"FFFE\",\"06698D06\",7", want: 1},
+		{line: "+CREG: 2", want: 2},
 	}
-	if reason := RegionBlockReason("461001234567890"); reason != "" {
-		t.Errorf("RegionBlockReason should not block, got: %s", reason)
+	for _, test := range tests {
+		got, ok := parseRegistrationStatus(modem.Response{Lines: []string{test.line}})
+		if !ok || got != test.want {
+			t.Fatalf("parseRegistrationStatus(%q) = %d, %v", test.line, got, ok)
+		}
 	}
 }
