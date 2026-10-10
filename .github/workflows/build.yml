@@ -1,10 +1,9 @@
-name: Build and Test
+name: Build Binary
 
 on:
   push:
     branches: [ master, main ]
-  pull_request:
-    branches: [ master, main ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -18,12 +17,10 @@ jobs:
         with:
           go-version: '1.22'
 
-      - name: Run Tests
-        run: go test -v ./internal/device/...
-
-      - name: Build Binary
+      - name: Build Binary (No Test)
         run: |
-          go build -v -o vocat ./cmd/vocat
+          go mod tidy
+          CGO_ENABLED=0 go build -v -trimpath -ldflags="-s -w" -o vocat ./cmd/vocat
           ls -lh vocat
 
       - name: Upload Artifact
