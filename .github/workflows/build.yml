@@ -12,6 +12,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build Web Frontend
+        run: |
+          if [ -d "web" ]; then
+            cd web
+            npm install || npm install --legacy-peer-deps
+            npm run build
+            cd ..
+          fi
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
@@ -19,7 +33,7 @@ jobs:
 
       - name: Build VoCat Linux Binary
         run: |
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o vocat-linux-amd64 ./cmd/vocat || CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o vocat-linux-amd64 .
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o vocat-linux-amd64 ./cmd/vocat
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
