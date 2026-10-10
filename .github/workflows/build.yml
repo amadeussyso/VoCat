@@ -1,0 +1,33 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Run Tests
+        run: go test -v ./internal/device/...
+
+      - name: Build Binary
+        run: |
+          go build -v -o vocat ./cmd/vocat
+          ls -lh vocat
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vocat-linux-amd64
+          path: vocat
