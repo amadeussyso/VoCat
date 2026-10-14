@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      RELEASE_THRESHOLD: "500"
+      RELEASE_THRESHOLD: "5000000"
 
     steps:
       - name: Checkout complete history
