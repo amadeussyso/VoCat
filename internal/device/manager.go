@@ -807,7 +807,12 @@ func (manager *Manager) ExecuteAT(
 	commandCtx, cancel := manager.withTimeout(ctx, manager.commandTimeout)
 	defer cancel()
 	response, err := client.Execute(commandCtx, command)
-	manager.setResult(id, state, nil, err)
+	// An unsupported CLCC query does not indicate an unhealthy control channel.
+	var commandErr *modem.CommandError
+	if !strings.EqualFold(strings.TrimSpace(command), "AT+CLCC") ||
+		!errors.As(err, &commandErr) || strings.TrimSpace(commandErr.Final) != "+CME ERROR: 4" {
+		manager.setResult(id, state, nil, err)
+	}
 	return response, err
 }
 
@@ -875,14 +880,22 @@ func (manager *Manager) Reboot(ctx context.Context, id string) error {
 	commandCtx, cancel := manager.withTimeout(ctx, manager.longTimeout)
 	defer cancel()
 	_, err = client.Execute(commandCtx, "AT+CFUN=1,1")
-	if closeErr := client.Close(); err == nil {
-		err = closeErr
+	if !isCommandInterrupted(err) {
+		if closeErr := client.Close(); err == nil {
+			err = closeErr
+		}
+		state.client = nil
 	}
-	state.client = nil
 	state.preFlightMode = nil
 	manager.clearSnapshot(id, state)
 	manager.setResult(id, state, nil, err)
 	return err
+}
+
+// Interrupted commands still own their late replies; reopening the port would
+// let those replies complete an unrelated command in the new session.
+func isCommandInterrupted(err error) bool {
+	return errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) || errors.Is(err, modem.ErrCommandTimeout)
 }
 
 // softResetForProfileSwitch resets the baseband SIM stack using a soft CFUN sequence
@@ -922,7 +935,7 @@ func (manager *Manager) softResetSIMLocked(ctx context.Context, id string, state
 	}
 	if _, err := client.Execute(commandCtx, "AT+CFUN=0"); err != nil {
 		// 超时或取消时不能确认 CFUN=0 是否已生效，仍尝试恢复到 RF 关闭的工作模式。
-		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) || errors.Is(err, modem.ErrCommandTimeout) {
+		if isCommandInterrupted(err) {
 			reloadCtx, cancelReload := context.WithTimeout(context.WithoutCancel(ctx), manager.commandTimeout)
 			_, reloadErr := client.Execute(reloadCtx, "AT+CFUN=4")
 			cancelReload()

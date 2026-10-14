@@ -6,7 +6,11 @@
  */
 export const EN_DICT: Record<string, string> = {
   "清空配置": "Clear configuration",
-  "清空后将移除该渠道的账号、地址和凭据，其他选项恢复默认值。启用状态保持不变，点击“保存通知配置”后生效。": "This removes accounts, addresses and credentials and restores other options to defaults. The enabled state stays unchanged. Click Save notification settings to apply.",
+  "清空后将移除该渠道的账号、地址和凭据，其他选项恢复默认值。启用状态和适用设备保持不变，点击“保存通知配置”后生效。": "This removes accounts, addresses and credentials and restores other options to defaults. The enabled state and device scope stay unchanged. Click Save notification settings to apply.",
+  "仅推送指定设备": "Only notify for selected devices",
+  "关闭时推送全部设备的通知。": "When off, notifications are sent for all devices.",
+  "正在加载设备…": "Loading devices…",
+  "设备列表加载失败，已保留适用设备范围。": "Could not load devices. The device scope is unchanged.",
   "启用 MeoW 推送": "Enable MeoW notifications",
   "MeoW 昵称": "MeoW nickname",
   "MeoW 测试失败": "MeoW test failed",
@@ -204,6 +208,10 @@ export const EN_DICT: Record<string, string> = {
   上次结果: "Last Result",
   完成后推送通知: "Notify on Completion",
   不推送通知: "No Notifications",
+  完成后切回原卡: "Revert to previous SIM/Profile",
+  保持当前卡: "Keep active SIM/Profile",
+  任务完成后切回原卡: "Revert to previous SIM/Profile after completion",
+  "若执行前活跃卡与任务卡不同，任务完成后自动切回执行前的 SIM / Profile 并恢复其网络策略": "If the active card before execution differs from the task card, automatically switch back to the previous SIM or profile and restore its network policy after completion.",
   "失败重试 {count} 次": "Retry {count} times on failure",
   拨打电话并自动挂断: "Call and Auto Hang Up",
   获取漫游公网IP: "Get Roaming Public IP",
@@ -454,8 +462,10 @@ export const EN_DICT: Record<string, string> = {
   "尚未配置任何企业微信消息推送 Webhook URL，点击右侧添加按钮。": "No WeCom message push Webhook URLs yet. Click the add button on the right.",
   "JSON 请求体模板": "JSON Request Body Template",
   "支持完整企业微信消息推送 JSON。变量必须作为 JSON 值使用，例如": "Supports a complete WeCom message push JSON payload. Use variables as JSON values, for example",
-  "可用变量：{{event}}、{{title}}、{{message}}、{{timestamp}}、{{content}}、{{number}}、{{device_id}}、{{device_name}}、{{device_label}}、{{time}}。":
-    "Available variables: {{event}}, {{title}}, {{message}}, {{timestamp}}, {{content}}, {{number}}, {{device_id}}, {{device_name}}, {{device_label}}, {{time}}.",
+  "可用变量：{{event}}、{{title}}、{{message}}、{{timestamp}}、{{content}}、{{number}}、{{local_phone}}、{{iccid}}、{{recipient}}、{{device_id}}、{{device_name}}、{{device_label}}、{{time}}。":
+    "Available variables: {{event}}, {{title}}, {{message}}, {{timestamp}}, {{content}}, {{number}}, {{local_phone}}, {{iccid}}, {{recipient}}, {{device_id}}, {{device_name}}, {{device_label}}, {{time}}.",
+  "number 为发送方；local_phone 为本机号码；recipient 为本机号码或 ICCID，无信息时为“未知”。":
+    "number is the sender; local_phone is the local number; recipient uses the local number, ICCID, or “未知” if unavailable.",
   "支持飞书 open.feishu.cn 与国际版 Lark open.larksuite.com 的群自定义机器人 Webhook，无需创建应用。":
     "Supports custom group bot Webhooks for Feishu at open.feishu.cn and international Lark at open.larksuite.com; no app is required.",
   "群机器人 Webhook URL": "Group Bot Webhook URL",
@@ -526,6 +536,11 @@ export const EN_DICT: Record<string, string> = {
   用户操作: "User Operations",
   系统错误: "System",
   "最多 10000 条": "Up to 10,000",
+  类型保留: "Retention Level",
+  "DEBUG 及以上": "DEBUG and above",
+  "INFO 及以上": "INFO and above",
+  "WARN 及以上": "WARN and above",
+  "ERROR (仅严重报错)": "ERROR only",
   达到上限后自动删除最旧日志: "The oldest logs are automatically removed at the limit",
   "此操作会永久删除服务端保存的全部日志，无法恢复。": "This permanently deletes all logs stored on the server and cannot be undone.",
   "确认清空日志？": "Clear all logs?",
