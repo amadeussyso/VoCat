@@ -313,6 +313,12 @@ func (s *Server) pollCellularCalls(ctx context.Context) {
 		return
 	}
 	for _, config := range devices {
+		// Native 410 firmware has no supported cellular call interface. Its
+		// VoWiFi calls arrive through SIP; polling CLCC while SIM/IMS is starting
+		// only produces ERROR and incorrectly poisons the modem health state.
+		if store.NormalizeDeviceType(config.DeviceType) == store.DeviceTypeWiFi410 {
+			continue
+		}
 		// If VoWiFi is active, incoming calls are handled directly by SIP INVITE in real time.
 		if s.callTransport(config.ID) == "vowifi" {
 			continue
@@ -321,7 +327,17 @@ func (s *Server) pollCellularCalls(ctx context.Context) {
 		if !present {
 			continue
 		}
+		// The capability check runs under the same budget as the query it
+		// guards: a device busy with a long operator scan must not stall the
+		// polling of the devices that follow.
 		pollCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+		if !s.supportsCLCC(pollCtx, physicalID) {
+			cancel()
+			// The firmware has no call-list implementation; polling would
+			// burn a control-channel round trip every cycle. Call state only
+			// arrives through the modem's own notifications.
+			continue
+		}
 		response, err := s.devices.ExecuteAT(pollCtx, physicalID, "AT+CLCC")
 		cancel()
 		if err != nil || !response.OK() {
